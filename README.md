@@ -1,6 +1,6 @@
 # mortgage-calculator
 this tool is to get an idea of what mortgage charges would look like.
-![image](https://github.com/ivanjrt/mortgage-calculator/assets/44326428/74120225-fe8c-43c6-9044-ef18770de62d)
+![image](https://github.com/ivanjrt/mortgage-calculator/assets/44326428/74120225-fe8c-43c6-9044-ef18770de62d) <br/>
 # Usage: 
 just add the values to the parameters. <br/>
 
