@@ -1,6 +1,6 @@
 # mortgage-calculator
 this tool is to get an idea of what mortgage charges would look like.
-
+![image](https://github.com/ivanjrt/mortgage-calculator/assets/44326428/74120225-fe8c-43c6-9044-ef18770de62d)
 # Usage: 
 just add the values to the parameters. <br/>
 
@@ -27,5 +27,3 @@ and potentially other parameters I don't know about.
 - HTML, CSS, JS, and for charts framework I used https://cdn.jsdelivr.net/npm/chart.js <br/>
 - graphics I designed them myself using `Stable Fusion` <br/>
 - I also utilize ChatGPT4 and Claude, with my knowledge and guidance I was able to do this in about 4 days few hours afterwork. <br/>
-
-![image](https://github.com/ivanjrt/mortgage-calculator/assets/44326428/74120225-fe8c-43c6-9044-ef18770de62d)
