@@ -1,0 +1,306 @@
+<html>
+  <head>
+    <link
+      rel="shortcut icon"
+      href="https://raw.githubusercontent.com/ivanjrt/XBOX360GP/main/houseHunterLogo.ico"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .title {
+        vertical-align: middle;
+        margin-left: 10px; /* Adjust margin as needed */
+      }
+      .logo {
+        width: 100px;
+        height: auto;
+        opacity: 0.7;
+        border-radius: 50%;
+        vertical-align: middle;
+      }
+      .header {
+        display: flex; /* Use flexbox to align items horizontally */
+        align-items: center; /* Vertically center align items */
+      }
+      h1 {
+        text-align: center;
+      }
+
+      input {
+        width: 100px;
+      }
+
+      label {
+        display: inline-block;
+        width: 200px;
+        text-align: right;
+      }
+
+      button {
+        margin-left: 210px;
+      }
+
+      p {
+        margin-left: 210px;
+        font-weight: bold;
+      }
+
+      /* Define CSS variables for the colors of the light and dark modes */
+      :root {
+        --bg-color: #fff;
+        --text-color: #000;
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #222;
+        --text-color: #fff;
+      }
+
+      /* Use the CSS variables to style the elements */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      /* Use the prefers-color-scheme media query to override the colors if the user's OS preference is dark */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #222;
+          color: #fff;
+        }
+
+        .highlighted {
+          background-color: rgb(51, 136, 206);
+          font-weight: bold;
+          font-size: 21px;
+        }
+      }
+    </style>
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <div class="header">
+      <img
+        class="logo"
+        src="https://raw.githubusercontent.com/ivanjrt/XBOX360GP/main/houseHunterLogo.png"
+        alt="Logo"
+      />
+      <h1 class="title">Mortgage Calculator</h1>
+    </div>
+    <form id="form">
+      <div>
+        <label for="purchase-price">Purchase Price ($):</label>
+        <input
+          id="purchase-price"
+          type="number"
+          value="300000"
+          min="0"
+          step="1000"
+        />
+      </div>
+      <div>
+        <label for="interest-rate">Interest Rate (%):</label>
+        <input
+          id="interest-rate"
+          type="number"
+          value="6.25"
+          min="0"
+          max="100"
+          step="0.01"
+        />
+      </div>
+      <div>
+        <label for="down-payment">Down Payment ($):</label>
+        <input
+          id="down-payment"
+          type="number"
+          value="60000"
+          min="0"
+          step="1000"
+        />
+      </div>
+      <div>
+        <label for="number-of-payments">Number of Payments:</label>
+        <input
+          id="number-of-payments"
+          type="number"
+          value="360"
+          min="0"
+          step="1"
+        />
+      </div>
+      <div>
+        <label for="property-taxes">Property Taxes Mo/ ($):</label>
+        <input
+          id="property-taxes"
+          type="number"
+          value="679.25"
+          min="0"
+          step="0.01"
+        />
+      </div>
+      <div>
+        <label for="home-insurance">Home Insurance Mo/ ($):</label>
+        <input
+          id="home-insurance"
+          type="number"
+          value="327.17"
+          min="0"
+          step="0.01"
+        />
+      </div>
+      <div>
+        <label for="hoa-fees">HOA Fees Mo/ ($):</label>
+        <input id="hoa-fees" type="number" value="54" min="0" step="0.01" />
+      </div>
+      <div>
+        <button id="calculate" type="button">Calculate</button>
+      </div>
+      <div>
+        <p id="principal-interest">Principal and Interest: $0.00</p>
+
+        <p><span id="monthly-payment">Monthly Payment: $0.00</span></p>
+        <p id="total-financed">Total Financed: $0.00</p>
+        <p id="total-interest">Total Interest: $0.00</p>
+        <p id="total-payments">Total Payments: $0.00</p>
+      </div>
+
+      <div style="position: relative; height: 30vh; width: 60vw">
+        <canvas id="myChart"></canvas>
+      </div>
+    </form>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize the chart
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var myChart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: ["Total Financed", "Total Interest", "Total Payments"],
+            datasets: [
+              {
+                label: "Mortgage Breakdown",
+                data: [0, 0, 0], // Initialize with zeros
+                backgroundColor: [
+                  "rgba(255, 99, 132, 0.2)",
+                  "rgba(54, 162, 235, 0.2)",
+                  "rgba(255, 206, 86, 0.2)",
+                ],
+                borderColor: [
+                  "rgba(255, 99, 132, 1)",
+                  "rgba(54, 162, 235, 1)",
+                  "rgba(255, 206, 86, 1)",
+                ],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+          },
+        });
+
+        // Get the input elements
+        let purchasePrice = document.getElementById("purchase-price");
+        let interestRate = document.getElementById("interest-rate");
+        let downPayment = document.getElementById("down-payment");
+        let numberOfPayments = document.getElementById("number-of-payments");
+        let propertyTaxes = document.getElementById("property-taxes");
+        let homeInsurance = document.getElementById("home-insurance");
+        let hoaFees = document.getElementById("hoa-fees");
+
+        // Get the output elements
+        let principalInterest = document.getElementById("principal-interest");
+        let monthlyPayment = document.getElementById("monthly-payment");
+        let totalFinanced = document.getElementById("total-financed");
+        let totalInterest = document.getElementById("total-interest");
+        let totalPayments = document.getElementById("total-payments");
+
+        // Get the calculate button
+        let calculate = document.getElementById("calculate");
+
+        // Add a click event listener to the calculate button
+        calculate.addEventListener("click", function () {
+          // Get the input values
+          let purchasePriceValue = Number(purchasePrice.value);
+          let interestRateValue = Number(interestRate.value) / 100;
+          let downPaymentValue = Number(downPayment.value);
+          let numberOfPaymentsValue = Number(numberOfPayments.value);
+          let propertyTaxesValue = Number(propertyTaxes.value);
+          let homeInsuranceValue = Number(homeInsurance.value);
+          let hoaFeesValue = Number(hoaFees.value);
+
+          // Calculate the monthly payment using the correct PMT formula
+          let monthlyInterestRate = interestRateValue / 12;
+          let monthlyPaymentValue =
+            ((purchasePriceValue - downPaymentValue) * monthlyInterestRate) /
+            (1 - Math.pow(1 + monthlyInterestRate, -numberOfPaymentsValue));
+          let principalInterestValue = monthlyPaymentValue.toLocaleString(
+            "en-US",
+            { maximumFractionDigits: 2 }
+          );
+
+          // Calculate the average monthly payment by adding the other fees
+          let avgMonthlyPmtValue =
+            monthlyPaymentValue +
+            propertyTaxesValue +
+            homeInsuranceValue +
+            hoaFeesValue;
+          let formattedAvgMonthlyPmtValue = avgMonthlyPmtValue.toLocaleString(
+            "en-US",
+            { maximumFractionDigits: 2 }
+          );
+
+          // Calculate the total financed by subtracting the down payment from the purchase price
+          let totalFinancedValue = purchasePriceValue - downPaymentValue;
+          let formattedTotalFinancedValue = totalFinancedValue.toLocaleString(
+            "en-US",
+            { maximumFractionDigits: 2 }
+          );
+
+          // Calculate the total interest by multiplying the monthly payment by the number of payments and subtracting the total financed
+          let totalInterestValue =
+            monthlyPaymentValue * numberOfPaymentsValue - totalFinancedValue;
+          let formattedTotalInterestValue = totalInterestValue.toLocaleString(
+            "en-US",
+            { maximumFractionDigits: 2 }
+          );
+
+          // Calculate the total payments by multiplying the average monthly payment by the number of payments
+          let totalPaymentsValue = totalInterestValue + totalFinancedValue;
+          let formattedTotalPaymentsValue = totalPaymentsValue.toLocaleString(
+            "en-US",
+            { maximumFractionDigits: 2 }
+          );
+
+          // Display the output values
+          principalInterest.textContent =
+            "Principal and Interest: $" + principalInterestValue;
+          monthlyPayment.textContent =
+            "Monthly Payment: $" + formattedAvgMonthlyPmtValue;
+          totalFinanced.textContent =
+            "Total Financed: $" + formattedTotalFinancedValue;
+          totalInterest.textContent =
+            "Total Interest: $" + formattedTotalInterestValue;
+          totalPayments.textContent =
+            "Total Payments: $" + formattedTotalPaymentsValue;
+
+          // Update the chart data
+          myChart.data.datasets[0].data = [
+            totalFinancedValue,
+            totalInterestValue,
+            totalPaymentsValue,
+          ];
+          myChart.update();
+
+          // Highlight the monthly payment element
+          document
+            .getElementById("monthly-payment")
+            .classList.add("highlighted");
+        });
+      });
+    </script>
+  </body>
+</html>
